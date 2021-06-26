@@ -4,18 +4,21 @@ using System.Linq;
 
 namespace CrossPlatformUavcanClient.Models
 {
-    public class UavcanChannelWData : UavcanChannel
+    public class UavcanChannelWData
     {
         public double Value { get; set; }
-        public string ShortName => FieldName.Split('.').Last();
-        public UavcanChannelWData(BaseType basetype, int size, string fieldName) : base(basetype, size, fieldName)
+        public UavcanChannel UavcanChannel { get; set; }
+
+        public UavcanChannelWData(UavcanChannel channel)
         {
+            UavcanChannel = channel;
             Value = 0;
         }
 
-        public UavcanChannelWData(UavcanChannel channel) : base(channel.Basetype, channel.Size, channel.FieldName)
+        public UavcanChannelWData(UavcanChannel channel, double value)
         {
-            Value = 0;
+            UavcanChannel = channel;
+            Value = value;
         }
     }
 }

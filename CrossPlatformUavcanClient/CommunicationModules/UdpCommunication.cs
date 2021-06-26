@@ -44,7 +44,7 @@ namespace CrossPlatformUavcanClient.CommunicationModules
             {
                 return;
             }
-
+            IsConnected = true;
             _readThread = new Thread(ReadThread) { IsBackground = true };
             _readThread.Start();
         }
@@ -69,37 +69,62 @@ namespace CrossPlatformUavcanClient.CommunicationModules
 
         public void ReadMessages(byte[] message)
         {
-            var canId = -1;
+            uint canId = 0;
             try
             {
                 var subMsgStart = 0;
+                //{ Datalength, CanId, Data, TailByte}
                 while (subMsgStart < message.Length)
                 {
-                    var timestampNetwork = BitConverter.ToInt64(message, subMsgStart);
-                    var timestamp = IPAddress.NetworkToHostOrder(timestampNetwork);
+                    var headerLength = 1 + 4;
+                    byte dataLength = message[subMsgStart];
 
-                    var canIdWithFlagsNetwork = BitConverter.ToInt32(message, subMsgStart + 8);
-                    var canIdWithFlags = IPAddress.NetworkToHostOrder(canIdWithFlagsNetwork);
-
-                    var dataLength = message[subMsgStart + 8 + 4];
-
-                    var isExtendedFrameFormat = (canIdWithFlags & (1 << EXTENDED_FRAME_FORMAT_INDEX)) != 0;
+                    var canIdWithFlagsNetwork = BitConverter.ToUInt32(message, subMsgStart + 1);
+                    var canIdWithFlags = canIdWithFlagsNetwork;// IPAddress.NetworkToHostOrder(canIdWithFlagsNetwork);
 
                     canId = (canIdWithFlags & ~(0b11100000 << 3 * 8));
-
                     var headerBits = new BitArray(BitConverter.GetBytes(canId));
+
+                    var isExtendedFrameFormat = (canIdWithFlags & (1 << EXTENDED_FRAME_FORMAT_INDEX)) != 0;
 
                     if (isExtendedFrameFormat)
                     {
                         // This is an extended CAN message => UAVCAN
                         var data = new byte[dataLength];
-                        Array.Copy(message, subMsgStart + UDP_HEADER_SIZE, data, 0, dataLength);
+                        Array.Copy(message, subMsgStart + headerLength, data, 0, dataLength);
                         IsConnected = true;
-
-                        UavcanFrameReceived?.Invoke(this, new UavcanFrame(headerBits, data, timestamp));
+                        var frame = new UavcanFrame(headerBits, data, DateTimeOffset.Now.ToUnixTimeMilliseconds());
+                        UavcanFrameReceived?.Invoke(this, frame);
                     }
 
-                    subMsgStart += UDP_HEADER_SIZE + dataLength;
+                    subMsgStart += headerLength + dataLength;
+
+                    //var timestampNetwork = BitConverter.ToInt64(message, subMsgStart);
+                    //var timestamp = IPAddress.NetworkToHostOrder(timestampNetwork);
+
+                    //var canIdWithFlagsNetwork = BitConverter.ToInt32(message, subMsgStart + 8);
+                    //var canIdWithFlags = IPAddress.NetworkToHostOrder(canIdWithFlagsNetwork);
+
+                    //var dataLength = message[subMsgStart + 8 + 4];
+
+                    //var isExtendedFrameFormat = (canIdWithFlags & (1 << EXTENDED_FRAME_FORMAT_INDEX)) != 0;
+
+                    //canId = (canIdWithFlags & ~(0b11100000 << 3 * 8));
+
+                    //var headerBits = new BitArray(BitConverter.GetBytes(canId));
+
+                    //if (isExtendedFrameFormat)
+                    //{
+                    //    // This is an extended CAN message => UAVCAN
+                    //    var data = new byte[dataLength];
+                    //    Array.Copy(message, subMsgStart + UDP_HEADER_SIZE, data, 0, dataLength);
+                    //    IsConnected = true;
+
+                    //    UavcanFrameReceived?.Invoke(this, new UavcanFrame(headerBits, data, timestamp));
+                    //}
+
+                    //subMsgStart += UDP_HEADER_SIZE + dataLength;
+
                 }
             }
             catch (Exception e)
@@ -113,11 +138,13 @@ namespace CrossPlatformUavcanClient.CommunicationModules
 
             var payload = FormatUavcanMessage(frame);
 
+            //UavcanFrameReceived?.Invoke(this, frame);
+
             try
             {
                 var client = new UdpClient();
 
-                client.Send(payload, payload.Length, _ip.ToString(), 1235);
+                client.Send(payload, payload.Length, _ip.ToString(), 1234);
             }
             catch (Exception e) when (e is ObjectDisposedException ||
                                       e is ArgumentNullException ||
@@ -143,23 +170,31 @@ namespace CrossPlatformUavcanClient.CommunicationModules
 
             byte[] dataLength = { Convert.ToByte(messageDataSize) };
 
-            var canIdAsBytes = BitConverter.GetBytes(
-                (uint)(uavcanFrame.GetCanId() | (1 << EXTENDED_FRAME_FORMAT_INDEX)));
+            var timestamp = BitConverter.GetBytes((long)0);
+            var canIdAsBytes = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(
+                (uint)(uavcanFrame.GetCanId() | (1 << EXTENDED_FRAME_FORMAT_INDEX))));
 
             var data = uavcanFrame.Data;
 
-            var message = new byte[dataLength.Length
+
+
+
+            var message = new byte[timestamp.Length
                                    + canIdAsBytes.Length
+                                   + dataLength.Length
                                    + messageDataSize];
 
-            // Copy dataLength byte to start of message
-            Array.Copy(dataLength, 0, message, 0, dataLength.Length);
+            // Copy timestamp byte to start of message
+            Array.Copy(timestamp, 0, message, 0, timestamp.Length);
 
             // Append canIdAsBytes to message
-            Array.Copy(canIdAsBytes, 0, message, dataLength.Length, canIdAsBytes.Length);
+            Array.Copy(canIdAsBytes, 0, message, timestamp.Length, canIdAsBytes.Length);
+
+            // Append datalength to message
+            Array.Copy(dataLength, 0, message, timestamp.Length + canIdAsBytes.Length, dataLength.Length);
 
             // Append data to message
-            Array.Copy(data, 0, message, dataLength.Length + canIdAsBytes.Length, data.Length);
+            Array.Copy(data, 0, message, timestamp.Length + dataLength.Length + canIdAsBytes.Length, data.Length);
 
             // Append tailbyte to message
             message[^1] = uavcanFrame.GetTailByte();

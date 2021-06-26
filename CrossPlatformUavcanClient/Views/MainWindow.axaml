@@ -8,12 +8,23 @@
         x:Class="CrossPlatformUavcanClient.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
         Title="CrossPlatformUavcanClient">
-  <TabControl>
-    <TabItem Header="Message Writer" VerticalContentAlignment="Center">
-      <v:MessageListView DataContext="{Binding MessageListViewModel}"/>
-    </TabItem>
-    <TabItem Header="Message Reader" VerticalContentAlignment="Center">
-      <TextBlock Text="Coming soon, to a release near you!"/>
-    </TabItem>
-  </TabControl>
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <TabControl Grid.Column="0">
+      <TabItem Header="Message Writer" VerticalContentAlignment="Center">
+        <v:MessageListView DataContext="{Binding MessageListViewModel}"/>
+      </TabItem>
+      <TabItem Header="Service Writer" VerticalContentAlignment="Center">
+        <TextBlock Text="Coming soon!"/>
+      </TabItem>
+    </TabControl>
+    <TabControl Grid.Column="1">
+      <TabItem Header="Message Reader" VerticalContentAlignment="Center">
+        <v:ReceivedMessagesListView DataContext="{Binding ReceivedMessagesListViewModel}"/>
+      </TabItem>
+    </TabControl>
+  </Grid>
 </Window>

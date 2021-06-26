@@ -1,16 +1,17 @@
 using RevolveUavcan.Uavcan.Interfaces;
+using RevolveUavcan.Communication;
 
 namespace CrossPlatformUavcanClient.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        public string Greeting => "Welcome to Avalonia! Lets get this party started!";
-
-        public MainWindowViewModel(IUavcanSerializationGenerator uavcanSerializationGenerator)
+        public MainWindowViewModel(IUavcanCommunicationModule commModule, IUavcanParser uavcanParser)
         {
-            MessageListViewModel = new MessageListViewModel(uavcanSerializationGenerator);
+            MessageListViewModel = new MessageListViewModel(uavcanParser, commModule);
+            ReceivedMessagesListViewModel = new ReceivedMessagesListViewModel(uavcanParser);
         }
 
         public MessageListViewModel MessageListViewModel { get; }
+        public ReceivedMessagesListViewModel ReceivedMessagesListViewModel { get; }
     }
 }

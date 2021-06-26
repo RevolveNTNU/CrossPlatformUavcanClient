@@ -4,6 +4,7 @@ using RevolveUavcan.Uavcan.Interfaces;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using RevolveUavcan.Communication;
 
 namespace CrossPlatformUavcanClient.ViewModels
 {
@@ -29,11 +30,13 @@ namespace CrossPlatformUavcanClient.ViewModels
             }
         }
 
-        private readonly IUavcanSerializationGenerator _uavcanSerializationGenerator;
+        private readonly IUavcanParser uavcanParser;
+        private readonly IUavcanCommunicationModule uavcanCommunicationModule;
 
-        public MessageListViewModel(IUavcanSerializationGenerator uavcanSerializationGenerator)
+        public MessageListViewModel(IUavcanParser parser, IUavcanCommunicationModule commMod)
         {
-            _uavcanSerializationGenerator = uavcanSerializationGenerator;
+            uavcanParser = parser;
+            uavcanCommunicationModule = commMod;
             Messages = new ObservableCollection<MessageModel>();
             AllMessages = new List<MessageModel>();
             NameSpaces = new ObservableCollection<string>();
@@ -43,9 +46,9 @@ namespace CrossPlatformUavcanClient.ViewModels
 
         private void InitMessageList()
         {
-            foreach (var keyValPair in _uavcanSerializationGenerator.MessageSerializationRules)
+            foreach (var keyValPair in uavcanParser.UavcanSerializationRulesGenerator.MessageSerializationRules)
             {
-                var message = new MessageModel(keyValPair.Key.Item1, keyValPair.Key.Item2, keyValPair.Value);
+                var message = new MessageModel(keyValPair.Key.Item1, keyValPair.Key.Item2, keyValPair.Value.FindAll(x => x.Basetype != RevolveUavcan.Dsdl.Types.BaseType.VOID), uavcanCommunicationModule, uavcanParser);
                 AllMessages.Add(message);
 
                 if (!NameSpaces.Contains(message.NameSpace))

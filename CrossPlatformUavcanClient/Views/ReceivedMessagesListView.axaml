@@ -1,38 +1,33 @@
 <UserControl xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:vm="clr-namespace:CrossPlatformUavcanClient.ViewModels;assembly=CrossPlatformUavcanClient"
-        mc:Ignorable="d"
-        x:Class="CrossPlatformUavcanClient.Views.MessageListView">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="CrossPlatformUavcanClient.Views.ReceivedMessagesListView">
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="auto"/>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
-    <ComboBox Items="{Binding NameSpaces}" SelectedItem="{Binding SelectedNameSpace}" Grid.Row="0"/>
+    <Button Content="CLEAR" Command="{Binding ClearAllCommand}" Grid.Row="0"/>
     <DataGrid CanUserSortColumns="True" Items="{Binding Messages}" Grid.Row="1">
       <DataGrid.Columns>
         <DataGridTextColumn Header="Subject Id" Binding="{Binding SubjectId}" IsReadOnly="True"/>
         <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True"/>
-        <DataGridTextColumn Header="Source Node ID" Binding="{Binding SourceNodeId}" IsReadOnly="False"/>
+        <DataGridTextColumn Header="Time" Binding="{Binding Timestamp}" IsReadOnly="True"/>
+        <DataGridTextColumn Header="Source Node ID" Binding="{Binding SourceNodeId}" IsReadOnly="True"/>
         <DataGridTemplateColumn Width="*">
           <DataTemplate>
             <Expander Header="Message Fields" ExpandDirection="Down">
-              <StackPanel Orientation="Vertical">
+              <StackPanel>
                 <DataGrid Items="{Binding Channels}">
                   <DataGrid.Columns>
                     <DataGridTextColumn Header="Field name" Binding="{Binding UavcanChannel.FieldName}" IsReadOnly="True"/>
-                    <DataGridTextColumn Header="Value" Binding="{Binding Value}" IsReadOnly="False" Width="*"/>
+                    <DataGridTextColumn Header="Value" Binding="{Binding Value}" IsReadOnly="True" Width="*"/>
                   </DataGrid.Columns>
                 </DataGrid>
               </StackPanel>
             </Expander>
-          </DataTemplate>
-        </DataGridTemplateColumn>
-        <DataGridTemplateColumn>
-          <DataTemplate>
-            <Button Command="{Binding SendThisMessageCommand}" Content="SEND" MinWidth="100" HorizontalContentAlignment="Center"/>
           </DataTemplate>
         </DataGridTemplateColumn>
       </DataGrid.Columns>

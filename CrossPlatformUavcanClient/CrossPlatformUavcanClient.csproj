@@ -13,6 +13,11 @@
     <PackageReference Include="Avalonia.Desktop" Version="0.10.6" />
     <PackageReference Include="Avalonia.Diagnostics" Version="0.10.6" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.6" />
-    <PackageReference Include="RevolveUavcan" Version="0.0.10" />
+    <PackageReference Include="RevolveUavcan" Version="0.0.11" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Views\ReceivedMessagesListView.axaml.cs">
+      <DependentUpon>ReceivedMessagesListView.axaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>
