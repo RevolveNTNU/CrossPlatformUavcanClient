@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:CrossPlatformUavcanClient.ViewModels;assembly=CrossPlatformUavcanClient"
+        mc:Ignorable="d"
+        x:Class="CrossPlatformUavcanClient.Views.MessageListView">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <ComboBox Items="{Binding NameSpaces}" SelectedItem="{Binding SelectedNameSpace}" Grid.Row="0"/>
+    <DataGrid CanUserSortColumns="True" Items="{Binding Messages}" Grid.Row="1">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Subject Id" Binding="{Binding SubjectId}" IsReadOnly="True"/>
+        <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True"/>
+        <DataGridTemplateColumn Width="*">
+          <DataTemplate>
+            <Expander Header="Message Fields" ExpandDirection="Down">
+              <StackPanel>
+                <DataGrid Items="{Binding Channels}">
+                  <DataGrid.Columns>
+                    <DataGridTextColumn Header="Field name" Binding="{Binding FieldName}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Value" Binding="{Binding Value}" IsReadOnly="False" Width="*"/>
+                  </DataGrid.Columns>
+                </DataGrid>
+              </StackPanel>
+            </Expander>
+          </DataTemplate>
+        </DataGridTemplateColumn>
+      </DataGrid.Columns>
+    </DataGrid>
+  </Grid>
+</UserControl>
