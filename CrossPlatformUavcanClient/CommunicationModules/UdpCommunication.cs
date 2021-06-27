@@ -17,6 +17,7 @@ namespace CrossPlatformUavcanClient.CommunicationModules
         private IPEndPoint _ipEndPoint;
         private IPAddress _ip;
 
+        private DateTime startTime = DateTime.Now;
         public bool IsConnected { get; set; }
 
         private const int EXTENDED_FRAME_FORMAT_INDEX = 31;
@@ -93,7 +94,7 @@ namespace CrossPlatformUavcanClient.CommunicationModules
                         var data = new byte[dataLength];
                         Array.Copy(message, subMsgStart + headerLength, data, 0, dataLength);
                         IsConnected = true;
-                        var frame = new UavcanFrame(headerBits, data, DateTimeOffset.Now.ToUnixTimeMilliseconds());
+                        var frame = new UavcanFrame(headerBits, data, (long)(DateTimeOffset.Now - startTime).TotalMilliseconds * 1000);
                         UavcanFrameReceived?.Invoke(this, frame);
                     }
 
@@ -170,14 +171,12 @@ namespace CrossPlatformUavcanClient.CommunicationModules
 
             byte[] dataLength = { Convert.ToByte(messageDataSize) };
 
-            var timestamp = BitConverter.GetBytes((long)0);
-            var canIdAsBytes = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(
-                (uint)(uavcanFrame.GetCanId() | (1 << EXTENDED_FRAME_FORMAT_INDEX))));
+            var timestamp = BitConverter.GetBytes(IPAddress.HostToNetworkOrder((long)(DateTimeOffset.Now - startTime).TotalMilliseconds * 1000));
+            var canIdAsBytes = BitConverter.GetBytes(
+                IPAddress.HostToNetworkOrder((int)(uavcanFrame.GetCanId() | (1 << EXTENDED_FRAME_FORMAT_INDEX)))
+            );
 
             var data = uavcanFrame.Data;
-
-
-
 
             var message = new byte[timestamp.Length
                                    + canIdAsBytes.Length
