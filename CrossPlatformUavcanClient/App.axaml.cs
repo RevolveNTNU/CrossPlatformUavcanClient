@@ -104,22 +104,9 @@ namespace CrossPlatformUavcanClient
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                var dsdlParser = new DsdlParser(@"C:\Users\Larsv\Revolve_Analyze\dsdl\revolve_dsdl");
-                var rulesGenerator = new UavcanSerializationRulesGenerator(dsdlParser);
-
-                // Revolve Analyze sends data to 1235, and reads from 1234
-                var udpComm = new UdpCommunication(IPAddress.Loopback, 1235);
-                var frameStorage = new UavcanFrameStorage(null);
-                frameStorage.RegisterOnDataEvent(udpComm);
-
-                rulesGenerator.Init();
-
-                var uavcanParser = new UavcanParser(null, rulesGenerator, frameStorage);
-
-
                 desktop.MainWindow = new MainWindow
                 {
-                    DataContext = new MainWindowViewModel(udpComm, uavcanParser),
+                    DataContext = new MainWindowViewModel(),
                 };
             }
 

@@ -26,5 +26,7 @@
         <v:ReceivedMessagesListView DataContext="{Binding ReceivedMessagesListViewModel}"/>
       </TabItem>
     </TabControl>
+
+    <Grid ZIndex="{Binding LayerIndex}" Grid.Row="0" Grid.ColumnSpan="2" Opacity="0.5" Background="Black"/>
   </Grid>
 </Window>

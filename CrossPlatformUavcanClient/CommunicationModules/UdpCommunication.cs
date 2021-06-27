@@ -19,14 +19,16 @@ namespace CrossPlatformUavcanClient.CommunicationModules
 
         private DateTime startTime = DateTime.Now;
         public bool IsConnected { get; set; }
+        private int writePort;
 
         private const int EXTENDED_FRAME_FORMAT_INDEX = 31;
 
-        public UdpCommunication(IPAddress ip, int port)
+        public UdpCommunication(IPAddress ip, int readPort, int writePort)
         {
+            this.writePort = writePort;
             if (ip != null)
             {
-                InitializeNetwork(ip, port);
+                InitializeNetwork(ip, readPort);
             }
         }
 
@@ -145,7 +147,7 @@ namespace CrossPlatformUavcanClient.CommunicationModules
             {
                 var client = new UdpClient();
 
-                client.Send(payload, payload.Length, _ip.ToString(), 1234);
+                client.Send(payload, payload.Length, _ip.ToString(), writePort);
             }
             catch (Exception e) when (e is ObjectDisposedException ||
                                       e is ArgumentNullException ||
