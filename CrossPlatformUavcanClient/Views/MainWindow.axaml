@@ -6,7 +6,7 @@
         xmlns:v="using:CrossPlatformUavcanClient.Views"
         mc:Ignorable="d" WindowState="Maximized"
         x:Class="CrossPlatformUavcanClient.Views.MainWindow"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="/Assets/Icon.ico"
         Title="CrossPlatformUavcanClient">
   <Grid>
     <Grid.ColumnDefinitions>

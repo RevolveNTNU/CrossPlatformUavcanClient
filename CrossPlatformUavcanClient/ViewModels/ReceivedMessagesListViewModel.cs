@@ -1,7 +1,6 @@
 ﻿using CrossPlatformUavcanClient.Models;
 using ReactiveUI;
 using RevolveUavcan.Communication.DataPackets;
-using RevolveUavcan.Uavcan;
 using RevolveUavcan.Uavcan.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -41,8 +40,8 @@ namespace CrossPlatformUavcanClient.ViewModels
             }
 
             var name = e.UavcanFrame.IsServiceNotMessage ?
-                ((UavcanSerializationRulesGenerator)uavcanParser.UavcanSerializationRulesGenerator).GetServiceNameFromSubjectId(e.UavcanFrame.SubjectId) :
-                ((UavcanSerializationRulesGenerator)uavcanParser.UavcanSerializationRulesGenerator).GetMessageNameFromSubjectId(e.UavcanFrame.SubjectId);
+                uavcanParser.UavcanSerializationRulesGenerator.GetServiceNameFromSubjectId(e.UavcanFrame.SubjectId) :
+                uavcanParser.UavcanSerializationRulesGenerator.GetMessageNameFromSubjectId(e.UavcanFrame.SubjectId);
 
             _syncContext.Send(x =>
             {

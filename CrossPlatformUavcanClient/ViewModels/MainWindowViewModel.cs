@@ -10,6 +10,8 @@ using Avalonia.Layout;
 using System.Threading.Tasks;
 using Avalonia;
 using System.IO;
+using System;
+using Avalonia.Media.Imaging;
 
 namespace CrossPlatformUavcanClient.ViewModels
 {
@@ -80,6 +82,12 @@ namespace CrossPlatformUavcanClient.ViewModels
             {
                 Height = 350,
                 Width = 400,
+                SystemDecorations = SystemDecorations.BorderOnly,
+                ExtendClientAreaToDecorationsHint = true,
+                ExtendClientAreaChromeHints = Avalonia.Platform.ExtendClientAreaChromeHints.NoChrome,
+                ExtendClientAreaTitleBarHeightHint = -1,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                CanResize = false,
                 Content = new StackPanel
                 {
                     Spacing = 4,
@@ -105,20 +113,19 @@ namespace CrossPlatformUavcanClient.ViewModels
                         }),
                     }
                 },
-                WindowStartupLocation = WindowStartupLocation.CenterOwner
             };
 
             button.Click += (_, __) =>
-            {
-                if (System.IO.Directory.Exists(dsdlPath))
                 {
-                    chosenIpAdress = ((window.Content as StackPanel).Children[5] as TextBox).Text;
-                    chosenReadPort = int.Parse(((window.Content as StackPanel).Children[6] as TextBox).Text);
-                    chosenWritePort = int.Parse(((window.Content as StackPanel).Children[7] as TextBox).Text);
-                    InitAllModules();
-                    window.Close();
-                }
-            };
+                    if (System.IO.Directory.Exists(dsdlPath))
+                    {
+                        chosenIpAdress = ((window.Content as StackPanel).Children[5] as TextBox).Text;
+                        chosenReadPort = int.Parse(((window.Content as StackPanel).Children[6] as TextBox).Text);
+                        chosenWritePort = int.Parse(((window.Content as StackPanel).Children[7] as TextBox).Text);
+                        InitAllModules();
+                        window.Close();
+                    }
+                };
 
             folderButton.Click += async (_, __) =>
             {
