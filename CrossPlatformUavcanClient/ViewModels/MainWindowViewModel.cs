@@ -8,6 +8,8 @@ using CrossPlatformUavcanClient.Views;
 using System.Threading;
 using Avalonia.Layout;
 using System.Threading.Tasks;
+using Avalonia;
+using System.IO;
 
 namespace CrossPlatformUavcanClient.ViewModels
 {
@@ -76,23 +78,26 @@ namespace CrossPlatformUavcanClient.ViewModels
 
             var window = new Window
             {
-                Height = 200,
+                Height = 350,
                 Width = 400,
                 Content = new StackPanel
                 {
                     Spacing = 4,
                     Children =
                     {
-                        new TextBlock { Text = "DsdlPath" },
-                        new TextBlock { Text = "No path selected. Press browse!" },
+                        new TextBlock { Text = "UAVCAN Client Setup", FontSize=25, HorizontalAlignment=HorizontalAlignment.Center, Margin=Thickness.Parse("5") },
+                        new TextBlock { Text = "Dsdl Path:", Margin=Thickness.Parse("5") },
+                        new TextBox { Text = "No path selected. Press browse!", Margin=Thickness.Parse("5") },
                         (folderButton = new Button
                         {
                             HorizontalAlignment = HorizontalAlignment.Center,
                             Content = "Browse"
                         }),
-                        new TextBox { Watermark = "IpAdress" },
-                        new TextBox { Watermark = "Read port",  },
-                        new TextBox { Watermark = "Write port" },
+
+                        new TextBlock { Text = "Provide IP Address and read- and write ports:", Margin=Thickness.Parse("5") },
+                        new TextBox { Watermark = "IP Address", Text = "127.0.0.1", Margin=Thickness.Parse("5") },
+                        new TextBox { Watermark = "Read port", Text = 1235.ToString(), Margin=Thickness.Parse("5") },
+                        new TextBox { Watermark = "Write port", Text = 1234.ToString(), Margin=Thickness.Parse("5") },
                         (button = new Button
                         {
                             HorizontalAlignment = HorizontalAlignment.Center,
@@ -105,21 +110,22 @@ namespace CrossPlatformUavcanClient.ViewModels
 
             button.Click += (_, __) =>
             {
-                chosenIpAdress = ((window.Content as StackPanel).Children[3] as TextBox).Text;
-                chosenReadPort = int.Parse(((window.Content as StackPanel).Children[4] as TextBox).Text);
-                chosenWritePort = int.Parse(((window.Content as StackPanel).Children[5] as TextBox).Text);
-                InitAllModules();
-                window.Close();
+                if (System.IO.Directory.Exists(dsdlPath))
+                {
+                    chosenIpAdress = ((window.Content as StackPanel).Children[5] as TextBox).Text;
+                    chosenReadPort = int.Parse(((window.Content as StackPanel).Children[6] as TextBox).Text);
+                    chosenWritePort = int.Parse(((window.Content as StackPanel).Children[7] as TextBox).Text);
+                    InitAllModules();
+                    window.Close();
+                }
             };
 
             folderButton.Click += async (_, __) =>
             {
                 await GetDsdlFolderPath();
-                ((window.Content as StackPanel).Children[1] as TextBlock).Text = dsdlPath;
+                ((window.Content as StackPanel).Children[2] as TextBox).Text = dsdlPath;
             };
             return window;
         }
     }
-
-
 }
