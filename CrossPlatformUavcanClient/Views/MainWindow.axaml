@@ -11,22 +11,36 @@
   <Grid>
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*"/>
-      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="5"/>
+      <ColumnDefinition Width="{Binding ReaderWidth}"/>
     </Grid.ColumnDefinitions>
     <TabControl Grid.Column="0">
       <TabItem Header="Message Writer" VerticalContentAlignment="Center">
-        <v:MessageListView DataContext="{Binding MessageListViewModel}"/>
+        <v:FrameListView DataContext="{Binding MessageListViewModel}"/>
       </TabItem>
-      <TabItem Header="Service Writer" VerticalContentAlignment="Center">
-        <TextBlock Text="Coming soon!"/>
+      <TabItem Header="Request Writer" VerticalContentAlignment="Center">
+        <v:FrameListView DataContext="{Binding RequestListViewModel}"/>
       </TabItem>
-    </TabControl>
-    <TabControl Grid.Column="1">
-      <TabItem Header="Message Reader" VerticalContentAlignment="Center">
-        <v:ReceivedMessagesListView DataContext="{Binding ReceivedMessagesListViewModel}"/>
+      <TabItem Header="Response Writer" VerticalContentAlignment="Center">
+        <v:FrameListView DataContext="{Binding ResponseListViewModel}"/>
       </TabItem>
     </TabControl>
-
+    <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
+    <Expander ExpandDirection="Right" Grid.Column="2" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" IsExpanded="{Binding IsReaderVisible}">
+      <Expander.Header>
+        <LayoutTransformControl Name="layoutTransform" Grid.Column="1" Grid.Row="1">
+          <LayoutTransformControl.LayoutTransform>
+            <RotateTransform Angle="90"/>
+          </LayoutTransformControl.LayoutTransform>
+          <TextBlock FontSize="25">Message Reader</TextBlock>
+        </LayoutTransformControl>
+      </Expander.Header>
+      <TabControl MinWidth="500">
+        <TabItem Header="Message Reader" VerticalContentAlignment="Center">
+          <v:ReceivedMessagesListView DataContext="{Binding ReceivedMessagesListViewModel}"/>
+        </TabItem>
+      </TabControl>
+    </Expander>
     <Grid ZIndex="{Binding LayerIndex}" Grid.Row="0" Grid.ColumnSpan="2" Opacity="0.5" Background="Black"/>
   </Grid>
 </Window>
