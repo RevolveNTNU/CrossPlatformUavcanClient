@@ -5,11 +5,21 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using RevolveUavcan.Communication;
+using RevolveUavcan.Dsdl.Fields;
+using System;
 
 namespace CrossPlatformUavcanClient.ViewModels
 {
-    public class MessageListViewModel : ViewModelBase
+    public class FrameListViewModel : ViewModelBase
     {
+        public enum FRAME_TYPE
+        {
+            MESSAGE,
+            REQUEST,
+            RESPONSE
+        }
+
+
         private ObservableCollection<MessageModel> messages;
 
         public List<MessageModel> AllMessages { get; set; }
@@ -33,15 +43,27 @@ namespace CrossPlatformUavcanClient.ViewModels
         private readonly IUavcanParser uavcanParser;
         private readonly IUavcanCommunicationModule uavcanCommunicationModule;
 
-        public MessageListViewModel(IUavcanParser parser, IUavcanCommunicationModule commMod)
+        public FrameListViewModel(IUavcanParser parser, IUavcanCommunicationModule commMod, FRAME_TYPE frame_type)
         {
             uavcanParser = parser;
             uavcanCommunicationModule = commMod;
             Messages = new ObservableCollection<MessageModel>();
             AllMessages = new List<MessageModel>();
             NameSpaces = new ObservableCollection<string>();
-            InitMessageList();
+            InitFrameList(frame_type);
             SelectedNameSpace = NameSpaces.First();
+        }
+
+        private void InitFrameList(FRAME_TYPE frame_type)
+        {
+            if (frame_type == FRAME_TYPE.MESSAGE)
+            {
+                InitMessageList();
+            }
+            else
+            {
+                InitServiceList(frame_type == FRAME_TYPE.REQUEST);
+            }
         }
 
         private void InitMessageList()
@@ -49,6 +71,21 @@ namespace CrossPlatformUavcanClient.ViewModels
             foreach (var keyValPair in uavcanParser.UavcanSerializationRulesGenerator.MessageSerializationRules)
             {
                 var message = new MessageModel(keyValPair.Key.Item1, keyValPair.Key.Item2, keyValPair.Value.FindAll(x => x.Basetype != RevolveUavcan.Dsdl.Types.BaseType.VOID), uavcanCommunicationModule, uavcanParser);
+                AllMessages.Add(message);
+
+                if (!NameSpaces.Contains(message.NameSpace))
+                {
+                    NameSpaces.Add(message.NameSpace);
+                }
+            }
+        }
+
+        private void InitServiceList(bool requestNotResponse)
+        {
+            foreach (var keyValPair in uavcanParser.UavcanSerializationRulesGenerator.ServiceSerializationRules)
+            {
+                var fields = requestNotResponse ? keyValPair.Value.RequestFields : keyValPair.Value.ResponseFields;
+                var message = new MessageModel(keyValPair.Key.Item1, keyValPair.Key.Item2, fields.FindAll(x => x.Basetype != RevolveUavcan.Dsdl.Types.BaseType.VOID), uavcanCommunicationModule, uavcanParser);
                 AllMessages.Add(message);
 
                 if (!NameSpaces.Contains(message.NameSpace))

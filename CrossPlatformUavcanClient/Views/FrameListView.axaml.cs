@@ -4,9 +4,9 @@ using Avalonia.Markup.Xaml;
 
 namespace CrossPlatformUavcanClient.Views
 {
-    public partial class MessageListView : UserControl
+    public partial class FrameListView : UserControl
     {
-        public MessageListView()
+        public FrameListView()
         {
             InitializeComponent();
         }

@@ -23,6 +23,9 @@
     </AvaloniaResource>
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Views\FrameListView.axaml.cs">
+      <DependentUpon>FrameListView.axaml</DependentUpon>
+    </Compile>
     <Compile Update="Views\ReceivedMessagesListView.axaml.cs">
       <DependentUpon>ReceivedMessagesListView.axaml</DependentUpon>
     </Compile>

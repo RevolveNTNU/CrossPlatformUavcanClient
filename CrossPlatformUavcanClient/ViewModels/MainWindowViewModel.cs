@@ -24,7 +24,7 @@ namespace CrossPlatformUavcanClient.ViewModels
         private string chosenIpAdress;
         private int chosenReadPort;
         private int chosenWritePort;
-
+        private bool isReaderVisible;
         public MainWindowViewModel()
         {
             var window = CreateSampleWindow();
@@ -34,11 +34,11 @@ namespace CrossPlatformUavcanClient.ViewModels
             window.Show(MainWindow.Instance);
         }
 
-        private async Task GetDsdlFolderPath()
+        private async Task<string> GetDsdlFolderPath()
         {
             OpenFolderDialog dialog = new OpenFolderDialog();
 
-            dsdlPath = await dialog.ShowAsync(MainWindow.Instance);
+            return await dialog.ShowAsync(MainWindow.Instance).ConfigureAwait(false);
         }
 
         private void InitAllModules()
@@ -58,7 +58,9 @@ namespace CrossPlatformUavcanClient.ViewModels
 
             _syncContext.Send(x =>
             {
-                MessageListViewModel = new MessageListViewModel(uavcanParser, commModule);
+                MessageListViewModel = new FrameListViewModel(uavcanParser, commModule, FrameListViewModel.FRAME_TYPE.MESSAGE);
+                RequestListViewModel = new FrameListViewModel(uavcanParser, commModule, FrameListViewModel.FRAME_TYPE.REQUEST);
+                ResponseListViewModel = new FrameListViewModel(uavcanParser, commModule, FrameListViewModel.FRAME_TYPE.RESPONSE);
                 ReceivedMessagesListViewModel = new ReceivedMessagesListViewModel(uavcanParser);
                 LayerIndex = -1;
                 this.RaisePropertyChanged(nameof(MessageListViewModel));
@@ -67,11 +69,34 @@ namespace CrossPlatformUavcanClient.ViewModels
             }, null);
         }
 
-        public MessageListViewModel MessageListViewModel { get; set; }
+        public FrameListViewModel MessageListViewModel { get; set; }
+        public FrameListViewModel RequestListViewModel { get; set; }
+        public FrameListViewModel ResponseListViewModel { get; set; }
         public ReceivedMessagesListViewModel ReceivedMessagesListViewModel { get; set; }
 
         private int layerIndex = 1000;
         public int LayerIndex { get => layerIndex; set => layerIndex = value; }
+
+        public GridLength ReaderWidth { get; set; } = GridLength.Auto;
+
+        public bool IsReaderVisible
+        {
+            get => isReaderVisible;
+            set
+            {
+                if (value != isReaderVisible)
+                {
+                    _syncContext.Send(x =>
+                    {
+                        this.RaiseAndSetIfChanged(ref isReaderVisible, value);
+                        ReaderWidth = isReaderVisible ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
+                        this.RaisePropertyChanged(nameof(ReaderWidth));
+                    }, null);
+                }
+            }
+        }
+
+        public bool IsReaderInvisible => !IsReaderVisible;
 
         private Window CreateSampleWindow()
         {
@@ -122,6 +147,7 @@ namespace CrossPlatformUavcanClient.ViewModels
                         chosenIpAdress = ((window.Content as StackPanel).Children[5] as TextBox).Text;
                         chosenReadPort = int.Parse(((window.Content as StackPanel).Children[6] as TextBox).Text);
                         chosenWritePort = int.Parse(((window.Content as StackPanel).Children[7] as TextBox).Text);
+                        dsdlPath = ((window.Content as StackPanel).Children[2] as TextBox).Text;
                         InitAllModules();
                         window.Close();
                     }
@@ -129,7 +155,7 @@ namespace CrossPlatformUavcanClient.ViewModels
 
             folderButton.Click += async (_, __) =>
             {
-                await GetDsdlFolderPath();
+                dsdlPath = await GetDsdlFolderPath();
                 ((window.Content as StackPanel).Children[2] as TextBox).Text = dsdlPath;
             };
             return window;

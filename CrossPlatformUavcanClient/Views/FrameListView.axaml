@@ -4,7 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:CrossPlatformUavcanClient.ViewModels;assembly=CrossPlatformUavcanClient"
         mc:Ignorable="d"
-        x:Class="CrossPlatformUavcanClient.Views.MessageListView">
+        x:Class="CrossPlatformUavcanClient.Views.FrameListView">
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="auto"/>
